@@ -4,6 +4,10 @@
 
 技术栈：**Three.js（自定义 ShaderMaterial） + MediaPipe Hands（21 关键点） + 原生 JavaScript / HTML / CSS**。本地运行无需构建、无需安装前端依赖，所有依赖已放在本地 `vendor/` 中；发布到 GitHub Pages 时，内置脚本会生成带 SEO 的静态产物。
 
+**在线体验：** <https://leisailover.github.io/fingertip-bloom/>
+
+[![Deploy to GitHub Pages](https://github.com/leisailover/fingertip-bloom/actions/workflows/pages.yml/badge.svg)](https://github.com/leisailover/fingertip-bloom/actions/workflows/pages.yml)
+
 ![桌面端绽放](preview/desktop-bloom.png)
 
 | 首屏 | 移动端绽放 |

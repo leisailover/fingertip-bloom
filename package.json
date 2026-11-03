@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Gesture-controlled particle flower using Three.js and MediaPipe Hands.",
+  "homepage": "https://leisailover.github.io/fingertip-bloom/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leisailover/fingertip-bloom.git"
+  },
   "engines": {
     "node": ">=18"
   },
