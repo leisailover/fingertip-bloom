@@ -1,0 +1,2 @@
+# 这是给 GitHub Pages 的静态标记文件，避免 Jekyll 处理构建产物。
+# 真正的线上构建由 scripts/build-pages.mjs 完成。

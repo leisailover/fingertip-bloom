@@ -1,0 +1,14 @@
+{
+  "name": "fingertip-bloom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gesture-controlled particle flower using Three.js and MediaPipe Hands.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/tension.test.mjs"
+  }
+}

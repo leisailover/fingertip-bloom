@@ -1,0 +1,11 @@
+{
+  "pageTitle": "指尖生花 | 手势控制粒子花朵 · Fingertip Bloom",
+  "siteName": "指尖生花 · Fingertip Bloom",
+  "description": "用摄像头与 MediaPipe Hands 驱动的实时粒子花朵：握拳收拢为花苞，张开手掌，粒子在指尖盛开。Three.js、WebGL 与手势识别共同完成的互动作品。",
+  "keywords": "指尖生花, 手势控制花朵, 粒子花朵, MediaPipe Hands, Three.js, WebGL, 摄像头互动, 手势识别, 创意前端",
+  "author": "Fingertip Bloom",
+  "locale": "zh_CN",
+  "themeColor": "#06050b",
+  "ogImage": "assets/og-cover.jpg",
+  "customDomain": ""
+}

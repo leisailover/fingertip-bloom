@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#06050b" />
+    <meta
+      name="description"
+      content="用摄像头与 MediaPipe Hands 驱动的实时粒子花朵：握拳收拢为花苞，张开手掌，粒子在指尖盛开。Three.js、WebGL 与手势识别共同完成的互动作品。"
+    />
+    <title>指尖生花 | 手势控制粒子花朵 · Fingertip Bloom</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- BUILD_SEO_START -->
+    <!-- BUILD_SEO_END -->
+  </head>
+  <body>
+    <div id="app" data-mode="intro" data-flower-state="closed">
+      <div class="stage" aria-hidden="true">
+        <canvas id="cameraCanvas" class="camera-canvas"></canvas>
+        <div class="camera-wash"></div>
+        <canvas id="handCanvas" class="hand-canvas"></canvas>
+        <canvas id="sceneCanvas" class="scene-canvas"></canvas>
+        <div class="stage-vignette"></div>
+        <div class="grain"></div>
+      </div>
+
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="指尖生花首页">
+          <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M20 5c4.9 2.9 7.4 6.9 7.4 11.9 0 5.9-3.3 10.4-7.4 13.4-4.1-3-7.4-7.5-7.4-13.4C12.6 11.9 15.1 7.9 20 5Z" />
+            <path d="M20 8.4v19.7M12.7 20c2.5 1 4.2 2.4 5.2 4.2M27.3 20c-2.5 1-4.2 2.4-5.2 4.2" />
+            <circle cx="20" cy="30.1" r="1.2" />
+          </svg>
+          <span class="brand-copy">
+            <span class="brand-name">指尖生花</span>
+            <span class="brand-en">FINGERTIP BLOOM</span>
+          </span>
+        </a>
+
+        <div class="top-actions">
+          <div class="tracking-chip" id="trackingChip" role="status" aria-live="polite" hidden>
+            <span class="tracking-dot" aria-hidden="true"></span>
+            <span id="trackingText">等待手部</span>
+          </div>
+          <button
+            class="icon-button"
+            id="settingsBtn"
+            type="button"
+            aria-label="打开调节面板"
+            aria-expanded="false"
+            aria-controls="settingsPanel"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h9M17 7h3M4 17h3M11 17h9M8 4v6M16 14v6" />
+              <circle cx="15" cy="7" r="2" />
+              <circle cx="9" cy="17" r="2" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="ui-layer">
+        <section class="intro" id="introScreen" aria-labelledby="introTitle">
+          <div class="intro-inner">
+            <p class="intro-kicker">
+              <span class="kicker-rule"></span>
+              GESTURE · LIGHT · FLOWER
+            </p>
+            <h1 id="introTitle">
+              <span class="title-line">让花开在</span>
+              <span class="title-line title-accent">指尖。</span>
+            </h1>
+            <p class="lede">
+              握拳，收拢一整个春天。<br />
+              张开手掌，看光从指缝间慢慢盛开。
+            </p>
+
+            <div class="intro-actions">
+              <button class="primary-button" id="startBtn" type="button">
+                <span class="button-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1.1-1.6A1.7 1.7 0 0 1 10.2 4h3.6a1.7 1.7 0 0 1 1.4.4L16.3 6h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z" />
+                    <circle cx="12" cy="12.4" r="3.3" />
+                  </svg>
+                </span>
+                <span class="button-copy">
+                  <strong>开启摄像头</strong>
+                  <small>让手势唤醒花朵</small>
+                </span>
+                <span class="button-arrow" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M5 12h13M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              </button>
+
+              <button class="text-button" id="demoBtn" type="button">
+                <span>先用鼠标感受</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h12M12 6l6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="gesture-guide" aria-label="操作方式">
+              <div class="gesture-step">
+                <span class="gesture-number">01</span>
+                <span class="gesture-copy">
+                  <strong>握拳</strong>
+                  <small>收拢花苞</small>
+                </span>
+              </div>
+              <span class="gesture-divider" aria-hidden="true"></span>
+              <div class="gesture-step">
+                <span class="gesture-number">02</span>
+                <span class="gesture-copy">
+                  <strong>张开手掌</strong>
+                  <small>让花盛开</small>
+                </span>
+              </div>
+            </div>
+
+            <p class="privacy-line">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="5.5" y="10" width="13" height="9.5" rx="2" />
+                <path d="M8.5 10V7.8a3.5 3.5 0 0 1 7 0V10" />
+              </svg>
+              画面仅在你的设备本地处理，不会上传
+            </p>
+          </div>
+
+          <div class="intro-meta" aria-hidden="true">
+            <span>LIVE GESTURE STUDY</span>
+            <span class="meta-line"></span>
+            <span>NO. 01 — 21 POINTS</span>
+          </div>
+        </section>
+
+        <section class="active-ui" id="activeUi" hidden aria-label="手势与花朵状态">
+          <div class="interaction-hint">
+            <span class="hud-kicker" id="hudKicker">HAND TRACKING</span>
+            <p id="hudHint">握拳收拢，张开手掌，让花醒来。</p>
+          </div>
+
+          <div class="tension-card">
+            <div class="tension-head">
+              <span class="tension-label"
+                >手掌张开度 <small>TENSION</small></span
+              >
+              <span class="tension-readout"
+                ><b id="tensionValue">00</b><small>%</small></span
+              >
+            </div>
+            <div
+              class="tension-track"
+              id="tensionTrack"
+              role="progressbar"
+              aria-label="手掌张开度"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <div class="tension-fill" id="tensionFill"></div>
+              <span class="tension-tick" style="left: 32%" data-label="0.32"></span>
+              <span class="tension-tick" style="left: 66%" data-label="0.66"></span>
+              <span class="tension-knob" id="tensionKnob"></span>
+            </div>
+            <div class="tension-foot">
+              <span>握拳 · 花苞</span>
+              <span class="tension-mid">舒展</span>
+              <span>张开 · 绽放</span>
+            </div>
+          </div>
+
+          <div class="flower-state" id="flowerState" data-state="closed">
+            <span class="state-glyph" aria-hidden="true">
+              <svg viewBox="0 0 32 32">
+                <path d="M16 4c3.2 2.6 4.8 5.6 4.8 9.1 0 4.2-2.2 7.4-4.8 9.5-2.6-2.1-4.8-5.3-4.8-9.5C11.2 9.6 12.8 6.6 16 4Z" />
+                <path d="M16 7v19M9.8 21.5c2.8-.4 4.8.4 6.2 2M22.2 21.5c-2.8-.4-4.8.4-6.2 2" />
+              </svg>
+            </span>
+            <span class="state-copy">
+              <small>FLOWER STATE</small>
+              <strong id="bloomStateText">含苞</strong>
+            </span>
+          </div>
+        </section>
+      </main>
+
+      <div class="side-whisper" id="sideWhisper" aria-hidden="true">
+        <span>01</span>
+        <span class="whisper-line"></span>
+        <span>21 HAND LANDMARKS</span>
+      </div>
+
+      <aside
+        class="settings-panel"
+        id="settingsPanel"
+        aria-labelledby="settingsTitle"
+        hidden
+      >
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">CONTROL ROOM</p>
+            <h2 id="settingsTitle">调节花朵</h2>
+          </div>
+          <button class="icon-button small" id="closeSettingsBtn" type="button" aria-label="关闭调节面板">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <section class="panel-section" aria-labelledby="particleLabel">
+            <div class="panel-row">
+              <label id="particleLabel" for="particleRange">粒子数量</label>
+              <output id="particleOutput" for="particleRange">15,000</output>
+            </div>
+            <input
+              class="range-input"
+              id="particleRange"
+              type="range"
+              min="5000"
+              max="20000"
+              step="500"
+              value="15000"
+            />
+            <div class="range-scale"><span>5,000</span><span>20,000</span></div>
+          </section>
+
+          <section class="panel-section switch-list" aria-label="画面开关">
+            <label class="switch-row">
+              <span>
+                <strong>手部骨骼</strong>
+                <small>显示 21 个关键点与连线</small>
+              </span>
+              <input id="skeletonToggle" type="checkbox" checked />
+              <span class="switch-ui" aria-hidden="true"></span>
+            </label>
+            <label class="switch-row">
+              <span>
+                <strong>摄像头背景</strong>
+                <small>半透明叠加实时画面</small>
+              </span>
+              <input id="backdropToggle" type="checkbox" checked />
+              <span class="switch-ui" aria-hidden="true"></span>
+            </label>
+          </section>
+
+          <section class="panel-section action-list" aria-label="操作">
+            <button class="panel-action" id="resetViewBtn" type="button">
+              <span>回到初始视角</span><kbd>R</kbd>
+            </button>
+            <button class="panel-action" id="startCameraBtn" type="button" hidden>
+              <span>开启摄像头</span><kbd>LIVE</kbd>
+            </button>
+            <button class="panel-action danger" id="stopCameraBtn" type="button" hidden>
+              <span>关闭摄像头</span><kbd>STOP</kbd>
+            </button>
+          </section>
+
+          <details class="formula-details">
+            <summary>张力算法 <span aria-hidden="true">＋</span></summary>
+            <div class="formula-body">
+              <code>R<sub>f</sub> = ‖tip − wrist‖ / ‖mcp − wrist‖</code>
+              <code>E = mean(R<sub>f</sub>) · B = 指节伸直度</code>
+              <code>raw = 0.78 · smoothstep(1.0, 1.9, E) + 0.22 · B</code>
+              <code>α = 1 − e<sup>−Δt / 0.085s</sup> · tension += (raw − tension) × α</code>
+              <code>bloom = smoothstep(0.32, 0.66, tension)</code>
+              <code>spread += (bloom − spread) × 0.1<small> / 60fps</small></code>
+              <p>
+                0–32% 花苞收拢 · 32–66% 缓慢舒展 · 66–100% 完全绽放。所有识别均在本地完成。
+              </p>
+            </div>
+          </details>
+        </div>
+
+        <div class="panel-foot">
+          <span id="fpsReadout">— FPS</span>
+          <span>ESC 关闭</span>
+        </div>
+      </aside>
+      <div class="panel-scrim" id="panelScrim" hidden></div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+      <div
+        class="loading-overlay"
+        id="loadingOverlay"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="loadingTitle"
+      >
+        <div class="loader-flower" aria-hidden="true">
+          <span></span>
+          <i></i>
+        </div>
+        <p class="loading-kicker">PREPARING THE BLOOM</p>
+        <h2 id="loadingTitle">正在唤醒花朵</h2>
+        <p class="loading-message" id="loadingMessage">正在请求摄像头权限…</p>
+        <p class="loading-note">首次加载需要几秒 · 请在浏览器提示中允许摄像头</p>
+        <button class="text-button compact" id="cancelLoadingBtn" type="button">取消</button>
+      </div>
+
+      <dialog class="error-dialog" id="errorDialog" aria-labelledby="errorTitle">
+        <button class="dialog-close" id="errorCloseBtn" type="button" aria-label="关闭">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+        <p class="error-kicker">CAMERA · PAUSED</p>
+        <h2 id="errorTitle">摄像头没有启动</h2>
+        <p class="error-message" id="errorMessage"></p>
+        <ul class="error-tips" id="errorTips"></ul>
+        <div class="error-actions">
+          <button class="primary-button compact" id="retryCameraBtn" type="button">
+            <span class="button-copy"><strong>重新尝试</strong></span>
+          </button>
+          <button class="text-button" id="errorDemoBtn" type="button">
+            <span>进入鼠标体验</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h12M12 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
+      </dialog>
+
+      <noscript>
+        <div class="noscript">请开启 JavaScript，才能让花朵在指尖盛开。</div>
+      </noscript>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
